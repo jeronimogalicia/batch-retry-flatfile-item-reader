@@ -88,13 +88,21 @@ public class SpringBatchApplication implements CommandLineRunner {
 		jobLauncher.run(job(), params);
 	}
 
+	int counter;
+
 	@Bean
 	@StepScope
 	@Retryable(include = { ItemStreamException.class }, maxAttempts = 5)
 	ItemReader<Player> loadRecordsReader() throws Exception {
-		System.out.println("Loading records");
+
+		String filePath = "src/main/resources/player1_s.csv";
+		if (++counter > 3) {
+			filePath = "src/main/resources/players.csv";
+		}
+		System.out.println("Loading records from "  + filePath + " try " + counter);
+
 		FlatFileItemReader<Player> itemReader = new FlatFileItemReader<>();
-		itemReader.setResource(new FileSystemResource("src/main/resources/player_s.csv")); //Change it to players.csv to make it work correctly
+		itemReader.setResource(new FileSystemResource(filePath));
 		itemReader.setLinesToSkip(1);
 		//DelimitedLineTokenizer defaults to comma as its delimiter
 		DefaultLineMapper<Player> lineMapper = new DefaultLineMapper<>();
